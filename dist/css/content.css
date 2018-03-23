@@ -1,0 +1,24 @@
+.show-prices-link {
+    display: block;
+    color: blue;
+    text-decoration: underline;
+    margin-top: 10px;
+}
+
+.country-price-link-wrap {
+    display: flex;
+    flex-direction: row;
+    justify-content:start;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.country-price-link {
+    margin: 0 3px;
+    width: 30%;
+    text-align: left;
+}
+
+.country-price-link:hover {
+    text-decoration: underline;
+}

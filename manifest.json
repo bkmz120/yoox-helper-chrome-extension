@@ -1,0 +1,41 @@
+{
+    "manifest_version": 2,
+
+    "name": "yoox.com - prices",
+    "description": "Get prices for product from other countries",
+    "version": "1.0",
+
+    "icons": {
+        "64": "img/icon.png"
+    },
+
+    "browser_action": {
+        "default_icon": "img/icon.png",
+        "default_popup": "dist/html/popup.html"
+    },
+
+    "content_scripts": [{
+        "matches": ["*://www.yoox.com/*"],
+        "js":[
+                "/dist/js/content.js"
+             ],
+        "css":[
+                "/dist/css/content.css"
+        ],
+        "run_at": "document_end"
+    }],
+
+    "background": {
+        "scripts": [
+            "/dist/js/background.js"
+        ]
+    },
+
+    "permissions": [
+        "activeTab",
+        "storage",
+        "unlimitedStorage",
+        "http://*/*",
+        "https://*/*"
+    ]
+}
