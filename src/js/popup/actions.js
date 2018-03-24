@@ -93,7 +93,9 @@ export const actions = {
         }
     },
     setAllCountries:value=>{
-        console.log("setAll",value);
+        if (value===undefined) {
+            value=[];
+        }
         return {
             countries:value
         }

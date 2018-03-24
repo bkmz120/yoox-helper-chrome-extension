@@ -68,28 +68,36 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+const defaultCountries = [{
+    name: "United Kingdom",
+    shortName: "uk",
+    EURcoef: 1.13875119
+}, {
+    name: "USA",
+    shortName: "us",
+    EURcoef: 0.813980937
+}, {
+    name: "Norway",
+    shortName: "no",
+    EURcoef: 1
+}, {
+    name: "Germany",
+    shortName: "de",
+    EURcoef: 1
+}];
+
 class CountriesStorage {
 
     static init() {
-        let defaultCountries = [{
-            name: "United Kingdom",
-            shortName: "uk",
-            EURcoef: 1.13875119
-        }, {
-            name: "USA",
-            shortName: "us",
-            EURcoef: 0.813980937
-        }, {
-            name: "Norway",
-            shortName: "no",
-            EURcoef: 1
-        }, {
-            name: "Germany",
-            shortName: "de",
-            EURcoef: 1
-        }];
-
-        this.saveAll(defaultCountries);
+        //if storage is empty set default values
+        return this.getAll().then(countries => {
+            if (countries === undefined) {
+                var initPromise = this.saveAll(defaultCountries);
+            } else {
+                var initPromise = Promise.resolve();
+            }
+            return initPromise;
+        });
     }
 
     static getAll() {
@@ -636,7 +644,9 @@ const actions = {
         };
     },
     setAllCountries: value => {
-        console.log("setAll", value);
+        if (value === undefined) {
+            value = [];
+        }
         return {
             countries: value
         };

@@ -15,19 +15,31 @@ export default class ProductPageInjector {
                 var self = this;
                 productPageParser.ready(function(){
                     let $price = this.getPriceEl();
-                    self._$priceWrap = $price.closest("#item-price");
-                    self._$showPrices = $("<a/>",{
-                        text:"Get other prices",
-                        href:"#",
-                        class:"show-prices-link"
+                    let $priceWrap = $price.closest("#item-price");
+                    let $loading = $("<div />",{
+                        text:"Loading prices...",
+                        class:"country-price-loading"
                     });
-                    self._$showPrices.on("click",self._showPrices.bind(self));
-                    self._$priceWrap.append(self._$showPrices);
+                    $priceWrap.append($loading);
+                    let productCountriesIterator = new ProductCountriesIterator(self._url);
+                    productCountriesIterator.getPrices().then((countries)=>{
+                        let $cPricesWrap = $("<div />",{
+                            class:"country-price-link-wrap",
+                        });
+                        for (let i=0;i<countries.length;i++) {
+                            let $cPrice = $("<a/>",{
+                                text:countries[i].price_str,
+                                href:countries[i].url,
+                                class:"country-price-link"
+                            });
+                            $cPricesWrap.append($cPrice);
+                        }
+                        $loading.remove();
+                        $priceWrap.append($cPricesWrap);
+                    });
                 });
             },2000);
-
         });
-
     }
 
     _showPrices(e) {

@@ -68,28 +68,36 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+const defaultCountries = [{
+    name: "United Kingdom",
+    shortName: "uk",
+    EURcoef: 1.13875119
+}, {
+    name: "USA",
+    shortName: "us",
+    EURcoef: 0.813980937
+}, {
+    name: "Norway",
+    shortName: "no",
+    EURcoef: 1
+}, {
+    name: "Germany",
+    shortName: "de",
+    EURcoef: 1
+}];
+
 class CountriesStorage {
 
     static init() {
-        let defaultCountries = [{
-            name: "United Kingdom",
-            shortName: "uk",
-            EURcoef: 1.13875119
-        }, {
-            name: "USA",
-            shortName: "us",
-            EURcoef: 0.813980937
-        }, {
-            name: "Norway",
-            shortName: "no",
-            EURcoef: 1
-        }, {
-            name: "Germany",
-            shortName: "de",
-            EURcoef: 1
-        }];
-
-        this.saveAll(defaultCountries);
+        //if storage is empty set default values
+        return this.getAll().then(countries => {
+            if (countries === undefined) {
+                var initPromise = this.saveAll(defaultCountries);
+            } else {
+                var initPromise = Promise.resolve();
+            }
+            return initPromise;
+        });
     }
 
     static getAll() {
@@ -10493,6 +10501,8 @@ return jQuery;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_parse_price__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_parse_price___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_parse_price__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__BackgroundRequest_js__ = __webpack_require__(13);
+
 
 
 
@@ -10511,7 +10521,7 @@ class ProductPageParser {
 
     _loadDocument(url) {
         let loadPromise = new Promise((resolve, reject) => {
-            __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.get(url, data => {
+            __WEBPACK_IMPORTED_MODULE_2__BackgroundRequest_js__["a" /* default */].GET(url).then(data => {
                 this._$pageDocument = __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<html />", {
                     html: data
                 });
@@ -10561,10 +10571,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-__WEBPACK_IMPORTED_MODULE_1__common_CountriesStorage_js__["a" /* default */].init();
-
-var productPageInjector = new __WEBPACK_IMPORTED_MODULE_0__common_ProductPageInjector_js__["a" /* default */](document, window.location.href);
-productPageInjector.inject();
+__WEBPACK_IMPORTED_MODULE_1__common_CountriesStorage_js__["a" /* default */].init().then(() => {
+    if (document.body.id === "Item") {
+        var productPageInjector = new __WEBPACK_IMPORTED_MODULE_0__common_ProductPageInjector_js__["a" /* default */](document, window.location.href);
+        productPageInjector.inject();
+    }
+});
 
 /***/ }),
 /* 5 */
@@ -10592,14 +10604,28 @@ class ProductPageInjector {
                 var self = this;
                 productPageParser.ready(function () {
                     let $price = this.getPriceEl();
-                    self._$priceWrap = $price.closest("#item-price");
-                    self._$showPrices = __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<a/>", {
-                        text: "Get other prices",
-                        href: "#",
-                        class: "show-prices-link"
+                    let $priceWrap = $price.closest("#item-price");
+                    let $loading = __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<div />", {
+                        text: "Loading prices...",
+                        class: "country-price-loading"
                     });
-                    self._$showPrices.on("click", self._showPrices.bind(self));
-                    self._$priceWrap.append(self._$showPrices);
+                    $priceWrap.append($loading);
+                    let productCountriesIterator = new __WEBPACK_IMPORTED_MODULE_2__ProductCountriesIterator_js__["a" /* default */](self._url);
+                    productCountriesIterator.getPrices().then(countries => {
+                        let $cPricesWrap = __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<div />", {
+                            class: "country-price-link-wrap"
+                        });
+                        for (let i = 0; i < countries.length; i++) {
+                            let $cPrice = __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<a/>", {
+                                text: countries[i].price_str,
+                                href: countries[i].url,
+                                class: "country-price-link"
+                            });
+                            $cPricesWrap.append($cPrice);
+                        }
+                        $loading.remove();
+                        $priceWrap.append($cPricesWrap);
+                    });
                 });
             }, 2000);
         });
@@ -10706,27 +10732,36 @@ module.exports = parsePrice
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ProductPageParser_js__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__CountriesStorage_js__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProductPageParser_js__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__CountriesStorage_js__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__BackgroundRequest_js__ = __webpack_require__(13);
+
+
 
 
 
 class ProductCountriesIterator {
 
     constructor(productUrl) {
+        this._productUrl = productUrl;
         const DOMAIN = "www.yoox.com";
         let domainEndPos = productUrl.indexOf(DOMAIN) + DOMAIN.length + 1;
         this._curCountryShortName = productUrl.substring(domainEndPos, domainEndPos + 2);
         this._urlBeforeCountry = productUrl.substring(0, domainEndPos);
         this._urlAfterCountry = productUrl.substring(domainEndPos + 2);
-        this._readyPromise = __WEBPACK_IMPORTED_MODULE_1__CountriesStorage_js__["a" /* default */].getAll().then(countries => {
+        this._readyPromise = __WEBPACK_IMPORTED_MODULE_2__CountriesStorage_js__["a" /* default */].getAll().then(countries => {
             this._countries = countries;
             return true;
         });
     }
 
     getPrices() {
-        var getPricesPromise = this._readyPromise.then(() => {
+        let cookies;
+        var getPricesPromise = this._readyPromise.then(__WEBPACK_IMPORTED_MODULE_3__BackgroundRequest_js__["a" /* default */].cutCookies).then(_cookies => {
+            cookies = _cookies;
+            console.log(cookies);
             let parsePromisesArr = [];
             this._prices = [];
             for (let i = 0; i < this._countries.length; i++) {
@@ -10734,7 +10769,7 @@ class ProductCountriesIterator {
                     let url = this._makeUrlForCountry(this._countries[i].shortName);
                     this._countries[i].url = url;
                     var parsePromise = new Promise((resolve, reject) => {
-                        let productPageParser = new __WEBPACK_IMPORTED_MODULE_0__ProductPageParser_js__["a" /* default */](url);
+                        let productPageParser = new __WEBPACK_IMPORTED_MODULE_1__ProductPageParser_js__["a" /* default */](url);
                         var self = this;
                         productPageParser.ready(function () {
                             let price = this.getPriceValue(self._countries[i].EURcoef);
@@ -10751,6 +10786,7 @@ class ProductCountriesIterator {
             }
             return Promise.all(parsePromisesArr);
         }).then(() => {
+            __WEBPACK_IMPORTED_MODULE_3__BackgroundRequest_js__["a" /* default */].replaceCookies(cookies);
             return this._prices;
         });
         return getPricesPromise;
@@ -10761,6 +10797,63 @@ class ProductCountriesIterator {
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = ProductCountriesIterator;
+
+
+/***/ }),
+/* 8 */,
+/* 9 */,
+/* 10 */,
+/* 11 */,
+/* 12 */,
+/* 13 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class BackgroundRequest {
+    static GET(url) {
+        let requestPromise = new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({
+                method: "GETrequest",
+                url: url
+            }, response => {
+                resolve(response);
+            });
+        });
+        return requestPromise;
+    }
+
+    static cutCookies() {
+        let cutPromise = new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({
+                method: "cutCookies"
+            }, response => {
+                resolve(response);
+            });
+        });
+        return cutPromise;
+
+        // var pairs = document.cookie.split(";");
+        // var cookies = {};
+        // for (var i=0; i<pairs.length; i++){
+        //     var pair = pairs[i].split("=");
+        //     cookies[(pair[0]+'').trim()] = unescape(pair[1]);
+        // }
+        // console.log(cookies);
+    }
+
+    static replaceCookies(cookies) {
+        let replacePromise = new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({
+                method: "replaceCookies",
+                cookies: cookies
+            }, response => {
+                resolve(response);
+            });
+        });
+        return replacePromise;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = BackgroundRequest;
 
 
 /***/ })

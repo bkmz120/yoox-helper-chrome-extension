@@ -1,9 +1,12 @@
+import $ from "jquery";
 import ProductPageParser from "./ProductPageParser.js";
 import CountriesStorage from "./CountriesStorage.js";
+import BackgroundRequest from "./BackgroundRequest.js";
 
 export default class ProductCountriesIterator{
 
     constructor(productUrl) {
+        this._productUrl = productUrl;
         const DOMAIN = "www.yoox.com";
         let domainEndPos = productUrl.indexOf(DOMAIN) + DOMAIN.length + 1;
         this._curCountryShortName = productUrl.substring(domainEndPos,domainEndPos+2);
@@ -16,35 +19,40 @@ export default class ProductCountriesIterator{
     }
 
     getPrices() {
+        let cookies;
         var getPricesPromise = this._readyPromise
-        .then(()=>{
-            let parsePromisesArr = [];
-            this._prices = [];
-            for (let i=0;i<this._countries.length;i++) {
-                if (this._countries[i].shortName!==this._curCountryShortName) {
-                    let url = this._makeUrlForCountry(this._countries[i].shortName);
-                    this._countries[i].url = url;
-                    var parsePromise = new Promise((resolve,reject)=>{
-                        let productPageParser = new ProductPageParser(url);
-                        var self = this;
-                        productPageParser.ready(function(){
-                            let price = this.getPriceValue(self._countries[i].EURcoef);
-                            self._prices.push({
-                                price:price,
-                                price_str:price + "_" + self._countries[i].shortName,
-                                url:url,
+            .then(BackgroundRequest.cutCookies)
+            .then((_cookies)=>{
+                cookies = _cookies;
+                console.log(cookies);
+                let parsePromisesArr = [];
+                this._prices = [];
+                for (let i=0;i<this._countries.length;i++) {
+                    if (this._countries[i].shortName!==this._curCountryShortName) {
+                        let url = this._makeUrlForCountry(this._countries[i].shortName);
+                        this._countries[i].url = url;
+                        var parsePromise = new Promise((resolve,reject)=>{
+                            let productPageParser = new ProductPageParser(url);
+                            var self = this;
+                            productPageParser.ready(function(){
+                                let price = this.getPriceValue(self._countries[i].EURcoef);
+                                self._prices.push({
+                                    price:price,
+                                    price_str:price + "_" + self._countries[i].shortName,
+                                    url:url,
+                                });
+                                resolve();
                             });
-                            resolve();
                         });
-                    });
-                    parsePromisesArr.push(parsePromise);
+                        parsePromisesArr.push(parsePromise);
+                    }
                 }
-            }
-            return Promise.all(parsePromisesArr);
-        })
-        .then(()=>{
-            return this._prices;
-        });
+                return Promise.all(parsePromisesArr);
+            })
+            .then(()=>{
+                BackgroundRequest.replaceCookies(cookies);
+                return this._prices;
+            });
         return  getPricesPromise;
     }
 

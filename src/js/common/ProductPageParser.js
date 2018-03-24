@@ -1,5 +1,6 @@
 import $ from "jquery";
 import parsePrice from 'parse-price';
+import BackgroundRequest from "./BackgroundRequest.js";
 
 export default class ProductPageParser {
     /**
@@ -17,12 +18,13 @@ export default class ProductPageParser {
 
     _loadDocument(url) {
         let loadPromise= new Promise((resolve,reject)=>{
-            $.get(url,(data)=>{
-                this._$pageDocument = $("<html />",{
-                  html:data
+            BackgroundRequest.GET(url)
+                .then((data)=>{
+                    this._$pageDocument = $("<html />",{
+                      html:data
+                    });
+                    resolve();
                 });
-                resolve();
-            });
         });
         return loadPromise;
     }

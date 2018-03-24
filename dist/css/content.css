@@ -1,7 +1,6 @@
-.show-prices-link {
+.country-price-loading {
     display: block;
-    color: blue;
-    text-decoration: underline;
+    color: #000;
     margin-top: 10px;
 }
 
