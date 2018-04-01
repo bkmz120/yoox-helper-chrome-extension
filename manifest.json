@@ -3,7 +3,7 @@
 
     "name": "yoox.com - prices",
     "description": "Get prices for product from other countries",
-    "version": "1.0",
+    "version": "1.0.1",
 
     "icons": {
         "64": "img/icon.png"

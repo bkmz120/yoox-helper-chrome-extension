@@ -24,7 +24,6 @@ export default class ProductCountriesIterator{
             .then(BackgroundRequest.cutCookies)
             .then((_cookies)=>{
                 cookies = _cookies;
-                console.log(cookies);
                 let parsePromisesArr = [];
                 this._prices = [];
                 for (let i=0;i<this._countries.length;i++) {

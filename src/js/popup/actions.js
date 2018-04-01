@@ -1,4 +1,5 @@
 import CountriesStorage from "../common/CountriesStorage.js";
+import SettingsStorage from "../common/SettingsStorage.js";
 
 export const actions = {
     newCountry: {
@@ -55,9 +56,9 @@ export const actions = {
             }
         }
 
-
+        state.newCountry.EURcoef = state.newCountry.EURcoef.replace(",",".");
         state.countries.push(state.newCountry);
-        actions.saveSettings();
+        actions.saveCountries();
         return {
             countries:state.countries,
             newCountry: {
@@ -75,19 +76,20 @@ export const actions = {
                 break;
             }
         }
-        actions.saveSettings();
+        actions.saveCountries();
         return {
             countries:state.countries
         }
     },
     setEURCoef:value=>(state, actions)=> {
+        value.EURcoef = value.EURcoef.replace(",",".");
         for (var i=0;i<state.countries.length;i++) {
             if (state.countries[i].shortName===value.shortName) {
                 state.countries[i].EURcoef = value.EURcoef;
                 break;
             }
         }
-        actions.saveSettings();
+        actions.saveCountries();
         return {
             countries:state.countries,
         }
@@ -100,13 +102,32 @@ export const actions = {
             countries:value
         }
     },
-    saveSettings:value=>state=>{
+    setSettings:value=> {
+        if (value===undefined) {
+            value=[];
+        }
+        return {
+            settings:value
+        }
+    },
+    changeAutoLoadPriceStatus:value=>(state)=>{
+        console.log(state);
+        state.settings.autoLoadPriceStatus = value;
+        SettingsStorage.saveAll(state.settings);
+        return {
+            settings:state.settings
+        }
+    },
+    saveCountries:value=>state=>{
         CountriesStorage.saveAll(state.countries);
         return true;
     },
     loadSetting:value=>(state, actions)=> {
-        CountriesStorage.getAll().then((countries)=>{
+        SettingsStorage.getAll().then((settings)=>{
+            actions.setSettings(settings);
+        });
 
+        CountriesStorage.getAll().then((countries)=>{
             actions.setAllCountries(countries);
         });
     }

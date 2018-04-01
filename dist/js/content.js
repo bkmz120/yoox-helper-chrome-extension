@@ -60,69 +60,11 @@
 /******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const defaultCountries = [{
-    name: "United Kingdom",
-    shortName: "uk",
-    EURcoef: 1.13875119
-}, {
-    name: "USA",
-    shortName: "us",
-    EURcoef: 0.813980937
-}, {
-    name: "Norway",
-    shortName: "no",
-    EURcoef: 1
-}, {
-    name: "Germany",
-    shortName: "de",
-    EURcoef: 1
-}];
-
-class CountriesStorage {
-
-    static init() {
-        //if storage is empty set default values
-        return this.getAll().then(countries => {
-            if (countries === undefined) {
-                var initPromise = this.saveAll(defaultCountries);
-            } else {
-                var initPromise = Promise.resolve();
-            }
-            return initPromise;
-        });
-    }
-
-    static getAll() {
-        let loadPromise = new Promise((resolve, reject) => {
-            chrome.storage.local.get(['countries'], items => {
-                resolve(items.countries);
-            });
-        });
-        return loadPromise;
-    }
-
-    static saveAll(countries) {
-        let savePromise = new Promise((resolve, reject) => {
-            chrome.storage.local.set({ countries: countries }, () => {
-                resolve();
-            });
-        });
-        return savePromise;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = CountriesStorage;
-
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -10493,15 +10435,73 @@ return jQuery;
 
 
 /***/ }),
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const defaultCountries = [{
+    name: "United Kingdom",
+    shortName: "uk",
+    EURcoef: 1.13875119
+}, {
+    name: "USA",
+    shortName: "us",
+    EURcoef: 0.813980937
+}, {
+    name: "Norway",
+    shortName: "no",
+    EURcoef: 1
+}, {
+    name: "Germany",
+    shortName: "de",
+    EURcoef: 1
+}];
+
+class CountriesStorage {
+
+    static init() {
+        //if storage is empty set default values
+        return CountriesStorage.getAll().then(countries => {
+            if (countries === undefined) {
+                var initPromise = CountriesStorage.saveAll(defaultCountries);
+            } else {
+                var initPromise = Promise.resolve();
+            }
+            return initPromise;
+        });
+    }
+
+    static getAll() {
+        let loadPromise = new Promise((resolve, reject) => {
+            chrome.storage.local.get(['countries'], items => {
+                resolve(items.countries);
+            });
+        });
+        return loadPromise;
+    }
+
+    static saveAll(countries) {
+        let savePromise = new Promise((resolve, reject) => {
+            chrome.storage.local.set({ countries: countries }, () => {
+                resolve();
+            });
+        });
+        return savePromise;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = CountriesStorage;
+
+
+/***/ }),
 /* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_parse_price__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_parse_price__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_parse_price___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_parse_price__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__BackgroundRequest_js__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__BackgroundRequest_js__ = __webpack_require__(3);
 
 
 
@@ -10558,20 +10558,74 @@ class ProductPageParser {
 
 
 /***/ }),
-/* 3 */,
-/* 4 */
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class BackgroundRequest {
+    static GET(url) {
+        let requestPromise = new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({
+                method: "GETrequest",
+                url: url
+            }, response => {
+                resolve(response);
+            });
+        });
+        return requestPromise;
+    }
+
+    static cutCookies() {
+        let cutPromise = new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({
+                method: "cutCookies"
+            }, response => {
+                resolve(response);
+            });
+        });
+        return cutPromise;
+
+        // var pairs = document.cookie.split(";");
+        // var cookies = {};
+        // for (var i=0; i<pairs.length; i++){
+        //     var pair = pairs[i].split("=");
+        //     cookies[(pair[0]+'').trim()] = unescape(pair[1]);
+        // }
+        // console.log(cookies);
+    }
+
+    static replaceCookies(cookies) {
+        let replacePromise = new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({
+                method: "replaceCookies",
+                cookies: cookies
+            }, response => {
+                resolve(response);
+            });
+        });
+        return replacePromise;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = BackgroundRequest;
+
+
+/***/ }),
+/* 4 */,
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_ProductPageInjector_js__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_CountriesStorage_js__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_ProductPageInjector_js__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_CountriesStorage_js__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_SettingsStorage_js__ = __webpack_require__(14);
 
 
 
 
 
-__WEBPACK_IMPORTED_MODULE_1__common_CountriesStorage_js__["a" /* default */].init().then(() => {
+
+__WEBPACK_IMPORTED_MODULE_2__common_SettingsStorage_js__["a" /* default */].init().then(__WEBPACK_IMPORTED_MODULE_1__common_CountriesStorage_js__["a" /* default */].init).then(() => {
     if (document.body.id === "Item") {
         var productPageInjector = new __WEBPACK_IMPORTED_MODULE_0__common_ProductPageInjector_js__["a" /* default */](document, window.location.href);
         productPageInjector.inject();
@@ -10579,14 +10633,16 @@ __WEBPACK_IMPORTED_MODULE_1__common_CountriesStorage_js__["a" /* default */].ini
 });
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProductPageParser_js__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ProductCountriesIterator_js__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ProductCountriesIterator_js__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__SettingsStorage_js__ = __webpack_require__(14);
+
 
 
 
@@ -10598,44 +10654,60 @@ class ProductPageInjector {
     }
 
     inject() {
-        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(document).ready(() => {
-            setTimeout(() => {
-                var productPageParser = new __WEBPACK_IMPORTED_MODULE_1__ProductPageParser_js__["a" /* default */](this._document);
-                var self = this;
-                productPageParser.ready(function () {
-                    let $price = this.getPriceEl();
-                    let $priceWrap = $price.closest("#item-price");
-                    let $loading = __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<div />", {
-                        text: "Loading prices...",
-                        class: "country-price-loading"
-                    });
-                    $priceWrap.append($loading);
-                    let productCountriesIterator = new __WEBPACK_IMPORTED_MODULE_2__ProductCountriesIterator_js__["a" /* default */](self._url);
-                    productCountriesIterator.getPrices().then(countries => {
-                        let $cPricesWrap = __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<div />", {
-                            class: "country-price-link-wrap"
-                        });
-                        for (let i = 0; i < countries.length; i++) {
-                            let $cPrice = __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<a/>", {
-                                text: countries[i].price_str,
-                                href: countries[i].url,
-                                class: "country-price-link"
+        __WEBPACK_IMPORTED_MODULE_3__SettingsStorage_js__["a" /* default */].getAll().then(settings => {
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()(document).ready(() => {
+                setTimeout(() => {
+                    var productPageParser = new __WEBPACK_IMPORTED_MODULE_1__ProductPageParser_js__["a" /* default */](this._document);
+                    var self = this;
+                    console.log(settings);
+                    productPageParser.ready(function () {
+                        let $price = this.getPriceEl();
+                        if (settings.autoLoadPriceStatus) {
+                            let $priceWrap = $price.closest("#item-price");
+                            let $loading = __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<div />", {
+                                text: "Loading prices...",
+                                class: "country-price-loading"
                             });
-                            $cPricesWrap.append($cPrice);
+                            $priceWrap.append($loading);
+                            let productCountriesIterator = new __WEBPACK_IMPORTED_MODULE_2__ProductCountriesIterator_js__["a" /* default */](self._url);
+                            productCountriesIterator.getPrices().then(countries => {
+                                let $cPricesWrap = __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<div />", {
+                                    class: "country-price-link-wrap"
+                                });
+                                for (let i = 0; i < countries.length; i++) {
+                                    let $cPrice = __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<a/>", {
+                                        text: countries[i].price_str,
+                                        href: countries[i].url,
+                                        class: "country-price-link"
+                                    });
+                                    $cPricesWrap.append($cPrice);
+                                }
+                                $loading.remove();
+                                $priceWrap.append($cPricesWrap);
+                            });
+                        } else {
+                            self._$priceWrap = $price.closest("#item-price");
+                            self._$showPrices = __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<a/>", {
+                                text: "Get other prices",
+                                href: "#",
+                                class: "show-prices-link"
+                            });
+                            self._$showPrices.on("click", self._showPrices.bind(self));
+                            self._$priceWrap.append(self._$showPrices);
                         }
-                        $loading.remove();
-                        $priceWrap.append($cPricesWrap);
                     });
-                });
-            }, 2000);
+                }, 2000);
+            });
         });
     }
 
     _showPrices(e) {
         e.preventDefault();
+        this._$showPrices.off("click", self._showPrices);
+        this._$showPrices.text("Loading prices...");
+        this._$showPrices.addClass("show-prices-link_loading");
         var productCountriesIterator = new __WEBPACK_IMPORTED_MODULE_2__ProductCountriesIterator_js__["a" /* default */](this._url);
         productCountriesIterator.getPrices().then(countries => {
-            console.log(countries);
             this._$showPrices.remove();
             let $cPricesWrap = __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<div />", {
                 class: "country-price-link-wrap"
@@ -10659,7 +10731,7 @@ class ProductPageInjector {
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 /**
@@ -10728,15 +10800,15 @@ module.exports = parsePrice
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProductPageParser_js__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__CountriesStorage_js__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__BackgroundRequest_js__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__CountriesStorage_js__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__BackgroundRequest_js__ = __webpack_require__(3);
 
 
 
@@ -10761,7 +10833,6 @@ class ProductCountriesIterator {
         let cookies;
         var getPricesPromise = this._readyPromise.then(__WEBPACK_IMPORTED_MODULE_3__BackgroundRequest_js__["a" /* default */].cutCookies).then(_cookies => {
             cookies = _cookies;
-            console.log(cookies);
             let parsePromisesArr = [];
             this._prices = [];
             for (let i = 0; i < this._countries.length; i++) {
@@ -10800,60 +10871,52 @@ class ProductCountriesIterator {
 
 
 /***/ }),
-/* 8 */,
 /* 9 */,
 /* 10 */,
 /* 11 */,
 /* 12 */,
-/* 13 */
+/* 13 */,
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-class BackgroundRequest {
-    static GET(url) {
-        let requestPromise = new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage({
-                method: "GETrequest",
-                url: url
-            }, response => {
-                resolve(response);
-            });
+const defaultSettings = {
+    autoLoadPriceStatus: true
+};
+
+class SettingsStorage {
+    static init() {
+        //if storage is empty set default values
+        return SettingsStorage.getAll().then(settings => {
+            if (settings === undefined) {
+                var initPromise = SettingsStorage.saveAll(defaultSettings);
+            } else {
+                var initPromise = Promise.resolve();
+            }
+            return initPromise;
         });
-        return requestPromise;
     }
 
-    static cutCookies() {
-        let cutPromise = new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage({
-                method: "cutCookies"
-            }, response => {
-                resolve(response);
+    static getAll() {
+        let loadPromise = new Promise((resolve, reject) => {
+            chrome.storage.local.get(['settings'], items => {
+                resolve(items.settings);
             });
         });
-        return cutPromise;
-
-        // var pairs = document.cookie.split(";");
-        // var cookies = {};
-        // for (var i=0; i<pairs.length; i++){
-        //     var pair = pairs[i].split("=");
-        //     cookies[(pair[0]+'').trim()] = unescape(pair[1]);
-        // }
-        // console.log(cookies);
+        return loadPromise;
     }
 
-    static replaceCookies(cookies) {
-        let replacePromise = new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage({
-                method: "replaceCookies",
-                cookies: cookies
-            }, response => {
-                resolve(response);
+    static saveAll(settings) {
+        let savePromise = new Promise((resolve, reject) => {
+            console.log("settings", settings);
+            chrome.storage.local.set({ settings: settings }, () => {
+                resolve();
             });
         });
-        return replacePromise;
+        return savePromise;
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = BackgroundRequest;
+/* harmony export (immutable) */ __webpack_exports__["a"] = SettingsStorage;
 
 
 /***/ })

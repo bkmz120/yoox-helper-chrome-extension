@@ -1,3 +1,16 @@
+.show-prices-link {
+    display: block;
+    color: blue;
+    text-decoration: underline;
+    margin-top: 10px;
+}
+
+.show-prices-link_loading {
+    text-decoration: none;
+    color: #000;
+    cursor: default;
+}
+
 .country-price-loading {
     display: block;
     color: #000;

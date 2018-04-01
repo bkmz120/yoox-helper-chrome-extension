@@ -11,4 +11,5 @@ export const state = {
         EURcoef:true,
     },
     errorMsg:"",
+    settings:{},
 }

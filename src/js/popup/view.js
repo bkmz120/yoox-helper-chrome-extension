@@ -73,5 +73,15 @@ export const view = (state, actions) => {
                     validEURcoef={state.newCountryValid.EURcoef}
                 />
                 <div class="error-msg">{state.errorMsg}</div>
+
+                <div class="checkbox">
+                    <input type="checkbox"
+                           id="autoLoadPrice"
+                           class="checkbox__inp"
+                           checked={state.settings.autoLoadPriceStatus}
+                           onchange={e => actions.changeAutoLoadPriceStatus(e.target.checked)}
+                    />
+                    <label for="autoLoadPrice" class="checkbox__label">Auto load price</label>
+                </div>
             </div>
 }

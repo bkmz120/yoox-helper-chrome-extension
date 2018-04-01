@@ -25,9 +25,9 @@ export default class CountriesStorage {
 
     static init() {
         //if storage is empty set default values
-        return this.getAll().then((countries)=>{
+        return CountriesStorage.getAll().then((countries)=>{
             if (countries===undefined) {
-                var initPromise = this.saveAll(defaultCountries);
+                var initPromise = CountriesStorage.saveAll(defaultCountries);
             }
             else {
                 var initPromise = Promise.resolve();

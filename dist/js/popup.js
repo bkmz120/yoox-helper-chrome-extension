@@ -60,11 +60,12 @@
 /******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 9);
+/******/ 	return __webpack_require__(__webpack_require__.s = 10);
 /******/ })
 /************************************************************************/
 /******/ ([
-/* 0 */
+/* 0 */,
+/* 1 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -90,9 +91,9 @@ class CountriesStorage {
 
     static init() {
         //if storage is empty set default values
-        return this.getAll().then(countries => {
+        return CountriesStorage.getAll().then(countries => {
             if (countries === undefined) {
-                var initPromise = this.saveAll(defaultCountries);
+                var initPromise = CountriesStorage.saveAll(defaultCountries);
             } else {
                 var initPromise = Promise.resolve();
             }
@@ -122,9 +123,9 @@ class CountriesStorage {
 
 
 /***/ }),
-/* 1 */,
 /* 2 */,
-/* 3 */
+/* 3 */,
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -501,20 +502,20 @@ function app(state, actions, view, container) {
 
 
 /***/ }),
-/* 4 */,
 /* 5 */,
 /* 6 */,
 /* 7 */,
 /* 8 */,
-/* 9 */
+/* 9 */,
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_hyperapp__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__popup_state_js__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__popup_actions_js__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__popup_view_js__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_hyperapp__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__popup_state_js__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__popup_actions_js__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__popup_view_js__ = __webpack_require__(13);
 
 
 
@@ -523,7 +524,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 Object(__WEBPACK_IMPORTED_MODULE_0_hyperapp__["a" /* app */])(__WEBPACK_IMPORTED_MODULE_1__popup_state_js__["a" /* state */], __WEBPACK_IMPORTED_MODULE_2__popup_actions_js__["a" /* actions */], __WEBPACK_IMPORTED_MODULE_3__popup_view_js__["a" /* view */], document.body);
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -539,17 +540,20 @@ const state = {
         shortName: true,
         EURcoef: true
     },
-    errorMsg: ""
+    errorMsg: "",
+    settings: {}
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = state;
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_CountriesStorage_js__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_CountriesStorage_js__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_SettingsStorage_js__ = __webpack_require__(14);
+
 
 
 const actions = {
@@ -607,8 +611,9 @@ const actions = {
             };
         }
 
+        state.newCountry.EURcoef = state.newCountry.EURcoef.replace(",", ".");
         state.countries.push(state.newCountry);
-        actions.saveSettings();
+        actions.saveCountries();
         return {
             countries: state.countries,
             newCountry: {
@@ -626,19 +631,20 @@ const actions = {
                 break;
             }
         }
-        actions.saveSettings();
+        actions.saveCountries();
         return {
             countries: state.countries
         };
     },
     setEURCoef: value => (state, actions) => {
+        value.EURcoef = value.EURcoef.replace(",", ".");
         for (var i = 0; i < state.countries.length; i++) {
             if (state.countries[i].shortName === value.shortName) {
                 state.countries[i].EURcoef = value.EURcoef;
                 break;
             }
         }
-        actions.saveSettings();
+        actions.saveCountries();
         return {
             countries: state.countries
         };
@@ -651,13 +657,32 @@ const actions = {
             countries: value
         };
     },
-    saveSettings: value => state => {
+    setSettings: value => {
+        if (value === undefined) {
+            value = [];
+        }
+        return {
+            settings: value
+        };
+    },
+    changeAutoLoadPriceStatus: value => state => {
+        console.log(state);
+        state.settings.autoLoadPriceStatus = value;
+        __WEBPACK_IMPORTED_MODULE_1__common_SettingsStorage_js__["a" /* default */].saveAll(state.settings);
+        return {
+            settings: state.settings
+        };
+    },
+    saveCountries: value => state => {
         __WEBPACK_IMPORTED_MODULE_0__common_CountriesStorage_js__["a" /* default */].saveAll(state.countries);
         return true;
     },
     loadSetting: value => (state, actions) => {
-        __WEBPACK_IMPORTED_MODULE_0__common_CountriesStorage_js__["a" /* default */].getAll().then(countries => {
+        __WEBPACK_IMPORTED_MODULE_1__common_SettingsStorage_js__["a" /* default */].getAll().then(settings => {
+            actions.setSettings(settings);
+        });
 
+        __WEBPACK_IMPORTED_MODULE_0__common_CountriesStorage_js__["a" /* default */].getAll().then(countries => {
             actions.setAllCountries(countries);
         });
     }
@@ -666,11 +691,11 @@ const actions = {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_hyperapp__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_hyperapp__ = __webpack_require__(4);
 
 
 const CountryRow = ({ name, shortName, EURcoef, removeCountry, setEURCoef }) => Object(__WEBPACK_IMPORTED_MODULE_0_hyperapp__["b" /* h */])(
@@ -777,10 +802,69 @@ const view = (state, actions) => {
             "div",
             { "class": "error-msg" },
             state.errorMsg
+        ),
+        Object(__WEBPACK_IMPORTED_MODULE_0_hyperapp__["b" /* h */])(
+            "div",
+            { "class": "checkbox" },
+            Object(__WEBPACK_IMPORTED_MODULE_0_hyperapp__["b" /* h */])("input", { type: "checkbox",
+                id: "autoLoadPrice",
+                "class": "checkbox__inp",
+                checked: state.settings.autoLoadPriceStatus,
+                onchange: e => actions.changeAutoLoadPriceStatus(e.target.checked)
+            }),
+            Object(__WEBPACK_IMPORTED_MODULE_0_hyperapp__["b" /* h */])(
+                "label",
+                { "for": "autoLoadPrice", "class": "checkbox__label" },
+                "Auto load price"
+            )
         )
     );
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = view;
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const defaultSettings = {
+    autoLoadPriceStatus: true
+};
+
+class SettingsStorage {
+    static init() {
+        //if storage is empty set default values
+        return SettingsStorage.getAll().then(settings => {
+            if (settings === undefined) {
+                var initPromise = SettingsStorage.saveAll(defaultSettings);
+            } else {
+                var initPromise = Promise.resolve();
+            }
+            return initPromise;
+        });
+    }
+
+    static getAll() {
+        let loadPromise = new Promise((resolve, reject) => {
+            chrome.storage.local.get(['settings'], items => {
+                resolve(items.settings);
+            });
+        });
+        return loadPromise;
+    }
+
+    static saveAll(settings) {
+        let savePromise = new Promise((resolve, reject) => {
+            console.log("settings", settings);
+            chrome.storage.local.set({ settings: settings }, () => {
+                resolve();
+            });
+        });
+        return savePromise;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = SettingsStorage;
 
 
 /***/ })

@@ -169,3 +169,20 @@ body {
     font-weight: 300;
     color: #da4141;
 }
+
+.checkbox {
+    padding-top: 10px;
+}
+
+.checkbox__inp {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.checkbox__label {
+    display: inline-block;
+    vertical-align: middle;
+    color: #555;
+    padding-left: 5px
+}
+
